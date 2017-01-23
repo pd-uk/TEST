@@ -1,6 +1,6 @@
 # Aimia Data Engineering Test
 
-This small project is created as a solution for the AIMIA Data Engineering Technical Test.
+This project is created as a solution for the AIMIA Data Engineering Technical Test.
 
 ## Basics
 
