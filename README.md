@@ -13,7 +13,7 @@ Weather Data Analysis:
 
 
 ## Assumptions
-
+This is a batch mode processing framework
 
 ## Installation
 
