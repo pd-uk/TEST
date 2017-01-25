@@ -27,7 +27,7 @@ Weather Data Analysis:
 
 ## Installation
 
-To Run (This has been tested on a HDP/CDH cluster):
+To Run (This has been tested on a HDP Sandbox):
 
 *  How to setup the environment to run the current program:
  *
