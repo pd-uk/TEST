@@ -14,10 +14,10 @@ Weather Data Analysis:
 
 
 ## Assumptions And Limitations
-This is a batch mode processing framework
-Small project and time constraint so code aesthetics, exception handling etc were ignored
-PC RAM was limited hence all data could not be crunched 
-The R code is created only to describe analysis
+1. This is a batch mode processing framework
+2. Small project and time constraint so code aesthetics, exception handling etc were ignored
+3. PC RAM was limited hence all data could not be crunched 
+4. The sample R code is created only to describe analysis process
 
 ##Deliverables
 1. Maven project export - Basic Spark code using Scala 
@@ -54,8 +54,7 @@ R- ggplot2, dplyr etc.
 
   
 ## Tests
-
-Describe and show how to run the tests with code examples.
+None
 
 ## Contributors
 
