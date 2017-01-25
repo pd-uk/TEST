@@ -1,0 +1,76 @@
+//Following code was tested in REPL first
+
+
+
+/*
+
+start repl
+spark-shell --packages com.databricks:spark-csv_2.10:1.5.0
+
+*/
+
+//location of raw data and processed data - this can be parameterised
+
+var fileLocation = "hdfs://sandbox.hortonworks.com:8020/data/AIMIA/RAW/*"
+var processedCompleteLocation = "hdfs://sandbox.hortonworks.com:8020/data/AIMIA/PROCESSED/"
+
+val df = sqlContext.read.format("com.databricks.spark.csv").option("inferSchema", "true").option("codec", "org.apache.hadoop.io.compress.GzipCodec").load(fileLocation)
+
+
+//Data reshaping i.e. create broad table from narrow table using pivot function. selected only few features that are relevant. This can be expanded if required
+val df2= df.groupBy("C0", "C1").pivot("C2", Seq("TMAX", "TMIN", "TOBS", "PRCP", "SNOW", "SNWD")).sum("C3")
+
+//filter out bad data - specify the criteria here. Expand as required.
+val df3 = df2.filter(( ($"TMAX" isNotNull ) && ($"TMIN" isNotNull))  )
+
+
+//rename the columns of Dataframe
+
+val df4 = df3.select($"C0".as("STATION"), $"C1".as("DATE").cast("string"), $"TMAX" , $"TMIN",  $"TOBS", $"PRCP", $"SNOW", $"SNWD")
+          .withColumn("COUNTRY", $"STATION".substr(0,2))
+           .withColumn("YEAR", $"DATE".substr(0,4))
+           .withColumn("MONTH", $"DATE".substr(5,2))
+
+
+df4.show
+
+/*  Sample result is shown below
+
+
++-----------+--------+----+----+----+----+----+----+-------+----+-----+
+|    STATION|    DATE|TMAX|TMIN|TOBS|PRCP|SNOW|SNWD|COUNTRY|YEAR|MONTH|
++-----------+--------+----+----+----+----+----+----+-------+----+-----+
+|AE000041196|20151119| 318| 199|null|null|null|null|     AE|2015|   11|
+|AEM00041217|20150108| 272| 115|null|null|null|null|     AE|2015|   01|
+|AEM00041217|20150308| 311| 167|null|null|null|null|     AE|2015|   03|
+|AEM00041217|20150508| 449| 296|null|null|null|null|     AE|2015|   05|
+|AG000060390|20150126| 132|  78|null|  89|null|null|     AG|2015|   01|
+|AG000060390|20150926| 277| 128|null|   0|null|null|     AG|2015|   09|
+|AGE00147716|20150109| 163|  71|null|   0|null|null|     AG|2015|   01|
+|AGE00147716|20150309| 154|  71|null|   0|null|null|     AG|2015|   03|
+|AGE00147716|20150509| 243| 156|null|   0|null|null|     AG|2015|   05|
+|AGE00147716|20150709| 287| 221|null|   0|null|null|     AG|2015|   07|
+|AGE00147716|20150909| 271| 193|null|   0|null|null|     AG|2015|   09|
+|AGE00147716|20151109| 208| 129|null|   0|null|null|     AG|2015|   11|
+|AGM00060402|20150121| 171|  53|null|   0|null|null|     AG|2015|   01|
+|AGM00060402|20150321| 197| 125|null|   0|null|null|     AG|2015|   03|
+|AGM00060402|20150521| 206| 146|null|  41|null|null|     AG|2015|   05|
+|AGM00060402|20150721| 315| 225|null|   0|null|null|     AG|2015|   07|
+|AGM00060402|20151121| 273| 118|null|   0|null|null|     AG|2015|   11|
+|AGM00060425|20150116| 185|  74|null|   0|null|null|     AG|2015|   01|
+|AGM00060425|20150316| 183|  53|null|   0|null|null|     AG|2015|   03|
+|AGM00060425|20150516| 242| 140|null|   0|null|null|     AG|2015|   05|
++-----------+--------+----+----+----+----+----+----+-------+----+-----+
+
+only showing top 20 rows
+
+
+*/
+
+
+
+//df4.write.mode("overwrite").format("parquet").save(processedCompleteLocation)
+
+df4.coalesce(100).write.mode("overwrite").format("com.databricks.spark.csv").option("header", "true").save(processedCompleteLocation)
+
+
